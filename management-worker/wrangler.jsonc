@@ -1,0 +1,15 @@
+{
+  // Nova Central Management Worker — deploy this SEPARATELY from the main proxy worker.
+  //   1) Create a KV namespace and put its id below (or: npx wrangler kv namespace create MGMT_KV)
+  //   2) Set the admin token:  npx wrangler secret put ADMIN_TOKEN
+  //   3) npx wrangler deploy
+  //   4) In each Nova proxy panel -> Settings -> "Central API", paste this worker's URL,
+  //      and set the same token as CENTRAL_TOKEN on the proxy worker (for /stats + broadcast).
+  "name": "nova-central",
+  "main": "worker.js",
+  "compatibility_date": "2025-01-01",
+  "kv_namespaces": [
+    { "binding": "MGMT_KV", "id": "REPLACE_WITH_YOUR_KV_NAMESPACE_ID" }
+  ]
+  // ADMIN_TOKEN is set via `wrangler secret put ADMIN_TOKEN` (do not hardcode it here).
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nova-proxy",
+  "main": "worker.js",
+  "compatibility_date": "2024-11-01",
+  "workers_dev": true,
+  // The dashboard (panel/public) is bundled INTO the Worker and served from it, so a
+  // single deploy gives you proxy + dashboard. run_worker_first lets the Worker handle
+  // auth/routing before any asset is served.
+  "assets": {
+    "directory": "./panel/public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "kv_namespaces": [
+    // No id on purpose: the "Deploy to Cloudflare" button (and `wrangler deploy` with
+    // wrangler >= 4.45) auto-creates this KV namespace and binds it for you. Nothing to fill in.
+    { "binding": "KV","id": "039e3a7d463e4197a03f06174dd39526" }
+  ],
+  // No cron by default — a fresh free/workers.dev deploy stays PASSIVE (no automatic outbound)
+  // so it doesn't trip Cloudflare's "Network abuse" detection. To enable hourly maintenance
+  // (GitHub mirror, health checks, central heartbeat) set the var ENABLE_CRON=1 AND add a cron
+  // trigger:  "triggers": { "crons": ["0 * * * *"] }  — recommended only on a custom domain.
+  "observability": { "enabled": true }
+  // NOTE: no "vars" here on purpose — the Deploy button turns every var into a setup field,
+  // so leaving them out keeps the one-click deploy truly one-click. Everything is optional
+  // and is configured AFTER deploy, inside the dashboard:
+  //   • Per-ISP clean IPs -> defaults to the shared Nova pool automatically (Network & IPs)
+  //   • GitHub mirror     -> Settings (GH repo + token)
+  //   • Telegram announce -> Notifications
+  //   • Fallback / blend  -> Settings (Extra node sources)
+  //   • Central API       -> Settings (Central API)
+}

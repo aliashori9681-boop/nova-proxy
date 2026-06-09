@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Nova Proxy Console</title>
+<link rel="icon" href="/logo.png" />
+<meta name="theme-color" content="#0b0d11" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Nova Proxy" />
+<link rel="apple-touch-icon" href="/logo.png" />
+<link rel="manifest" href='data:application/manifest+json,{"name":"Nova Proxy","short_name":"Nova","description":"Nova Proxy control panel","display":"standalone","orientation":"portrait","background_color":"%23070809","theme_color":"%230b0d11","start_url":"/admin","scope":"/admin","icons":[{"src":"/logo.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"/logo.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}' />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+ --bg:#070809;--panel:#0c0e12;--card:#101319;--card2:#0b0d11;--bd:#1c2027;--bd2:#262b34;--tx:#e9edf4;--tx2:#aeb6c4;--mu:#6f7888;
+ --ac:#22d3ee;--ac2:#a855f7;--ok:#34d399;--dg:#f87171;--wn:#f5b042;--grad:linear-gradient(120deg,#22d3ee,#7c5cff);
+ --ring:rgba(34,211,238,.35);--shadow:0 1px 0 rgba(255,255,255,.02),0 12px 30px rgba(0,0,0,.45);--radius:12px}
+html[data-theme=light]{--bg:#f4f6fb;--panel:#ffffff;--card:#ffffff;--card2:#f7f9fc;--bd:#e6eaf1;--bd2:#dde2eb;--tx:#101622;--tx2:#445066;--mu:#8a93a6;--ac:#0ea5c4;--ac2:#7c3aed;--grad:linear-gradient(120deg,#0891b2,#7c3aed);--ring:rgba(8,145,178,.25);--shadow:0 1px 2px rgba(20,40,80,.04),0 10px 28px rgba(40,60,110,.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Vazirmatn',system-ui,-apple-system,Segoe UI,Tahoma,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+html[dir=rtl] body{font-family:'Vazirmatn','Inter',system-ui,Tahoma,sans-serif}
+.app{display:flex;min-height:100vh}
+.side{width:248px;flex:0 0 248px;background:var(--panel);border-inline-end:1px solid var(--bd);padding:16px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+.brand{display:flex;align-items:center;gap:11px;padding:8px 10px 18px}
+.brand .lg{width:34px;height:34px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(124,92,255,.35)}
+.brand .lg svg{width:20px;height:20px}.brand h1{font-size:15.5px;font-weight:700;letter-spacing:-.2px}.brand .tag{font-size:10px;color:var(--mu);font-weight:500;margin-top:1px}
+.navlabel{font-size:10px;font-weight:700;letter-spacing:1.4px;color:var(--mu);text-transform:uppercase;padding:8px 12px 6px}
+.nav{display:flex;flex-direction:column;gap:2px;flex:1}
+.nav a{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:9px;color:var(--tx2);text-decoration:none;font-size:13.5px;font-weight:500;cursor:pointer;position:relative;transition:.12s}
+.nav a svg{width:18px;height:18px;flex:0 0 18px;opacity:.85}
+.nav a:hover{background:var(--card);color:var(--tx)}
+.nav a.on{background:var(--card);color:var(--tx)}
+.nav a.on::before{content:'';position:absolute;inset-inline-start:0;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--grad)}
+.nav a.on svg{opacity:1;color:var(--ac)}
+.bottom{display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid var(--bd)}
+.toolbar{display:flex;gap:8px}
+.lang{display:flex;gap:2px;background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:3px;flex:1}
+.lang button{flex:1;border:none;background:transparent;color:var(--mu);font:inherit;font-size:11.5px;font-weight:600;padding:6px;border-radius:7px;cursor:pointer}
+.lang button.on{background:var(--grad);color:#fff}
+.theme-btn{background:var(--card);border:1px solid var(--bd);border-radius:9px;width:40px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.theme-btn:hover{color:var(--ac);border-color:var(--bd2)}.theme-btn svg{width:17px;height:17px}
+.logout{display:flex;align-items:center;justify-content:center;gap:7px;color:var(--tx2);text-decoration:none;font-size:12.5px;font-weight:500;border:1px solid var(--bd);border-radius:9px;padding:9px}
+.logout:hover{border-color:var(--dg);color:var(--dg)}.logout svg{width:15px;height:15px}
+.social{display:flex;gap:8px}
+.social a{flex:1;display:flex;align-items:center;justify-content:center;height:38px;background:var(--card);border:1px solid var(--bd);border-radius:9px;color:var(--tx2);text-decoration:none;transition:.12s}
+.social a:hover{border-color:var(--ac);color:var(--ac)}
+.social a svg{width:17px;height:17px}
+.wrap{flex:1;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
+.topbar{height:60px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(8px);z-index:20}
+.topbar .tt{font-size:15px;font-weight:700;letter-spacing:-.2px}
+.topbar .tts{display:block;font-size:11.5px;color:var(--mu);font-weight:500;margin-top:1px}
+.page>.sec-h,.page>.sec-s{display:none}
+.navparent{cursor:pointer}
+.navparent .chev{margin-inline-start:auto;width:16px;height:16px;transition:.18s;flex:0 0 16px}
+.navgrp.open .navparent .chev{transform:rotate(180deg)}
+.navsub{display:none;margin-inline-start:14px;padding-inline-start:8px;border-inline-start:1px solid var(--bd)}
+.navgrp.open .navsub{display:block}
+.navsub a{font-size:13px}
+.tour-help{width:34px;height:34px;flex:0 0 auto;background:var(--card);border:1px solid var(--bd);border-radius:9px;color:var(--ac);cursor:pointer;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center}
+.tour-help:hover{border-color:var(--ac)}
+.tour-ov{position:fixed;inset:0;background:rgba(2,6,12,.62);z-index:9998;backdrop-filter:blur(1px)}
+.tour-spot{position:relative;z-index:9999;outline:3px solid var(--ac);outline-offset:4px;border-radius:14px}
+.tour-pop{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:10000;width:min(560px,92vw);background:var(--card);border:1px solid var(--bd2);border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.45);padding:18px 20px}
+.tour-pop h4{font-size:15px;font-weight:800;margin:0 0 8px}
+.tour-pop p{font-size:13.5px;color:var(--tx2);line-height:1.8;margin:0 0 14px}
+.tour-pop .tr{display:flex;align-items:center;gap:8px}
+.tour-pop .tr .sp{flex:1;font-size:12px;color:var(--mu)}
+.tour-pop button{border:1px solid var(--bd2);background:var(--card2);color:var(--tx);font:inherit;font-weight:600;font-size:13px;padding:8px 16px;border-radius:9px;cursor:pointer}
+.tour-pop button.p{background:var(--grad);color:#fff;border:none}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--tx2);background:var(--card);border:1px solid var(--bd);border-radius:999px;padding:6px 12px;max-width:48vw;min-width:0}
+#pill-host{display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+@media(max-width:640px){.topbar{padding:10px 14px;gap:8px}.topbar .tts{display:none}.pill{max-width:42vw}.topbar .tt{font-size:14px}}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--mu)}.dot.ok{background:var(--ok);box-shadow:0 0 0 3px rgba(52,211,153,.18)}
+.bellwrap{position:relative}
+.bell{position:relative;background:var(--card);border:1px solid var(--bd);border-radius:9px;width:38px;height:38px;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.bell:hover{color:var(--ac);border-color:var(--bd2)}.bell svg{width:18px;height:18px}
+.bell-dot{position:absolute;top:7px;inset-inline-end:8px;width:8px;height:8px;border-radius:50%;background:var(--dg);display:none;box-shadow:0 0 0 2px var(--panel)}
+.bell-dot.on{display:block}
+.bell-menu{position:absolute;inset-inline-end:0;top:46px;width:300px;max-width:78vw;background:var(--card);border:1px solid var(--bd);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;display:none;z-index:40}
+.bell-menu.open{display:block}
+.bell-menu .bt{font-size:13px;font-weight:700;margin-bottom:4px}
+.bell-menu .bx{font-size:12.5px;color:var(--tx2);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.bell-menu .bl{display:inline-block;margin-top:8px;font-size:12px;color:var(--ac);text-decoration:none;font-weight:600;word-break:break-all}
+.bell-menu .be{font-size:12.5px;color:var(--mu)}
+.main{flex:1;padding:26px 28px;max-width:1040px}
+.page{display:none}.page.on{display:block;animation:f .22s ease}
+@keyframes f{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.sec-h{font-size:18px;font-weight:700;letter-spacing:-.3px;margin-bottom:3px}.sec-s{color:var(--mu);font-size:13px;margin-bottom:16px}
+.help{background:var(--card);border:1px solid var(--bd);border-radius:12px;margin-bottom:18px;box-shadow:var(--shadow);overflow:hidden}
+.help summary{list-style:none;cursor:pointer;padding:12px 16px;font-size:13px;font-weight:700;color:var(--ac);display:flex;align-items:center;gap:9px;user-select:none}
+.help summary::-webkit-details-marker{display:none}
+.help summary::before{content:'?';width:20px;height:20px;flex:0 0 20px;border-radius:50%;background:color-mix(in srgb,var(--ac) 15%,transparent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.help summary::after{content:'+';margin-inline-start:auto;color:var(--mu);font-weight:700;font-size:15px}
+.help[open] summary::after{content:'\2212'}
+.help[open] summary{border-bottom:1px solid var(--bd)}
+.help .hc{padding:14px 16px;font-size:13px;color:var(--tx2);line-height:1.95}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--radius);padding:18px 20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card>h3{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px}
+.kv{background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:13px 14px}
+.kv .k{font-size:10.5px;color:var(--mu);font-weight:600;text-transform:uppercase;letter-spacing:.5px}.kv .v{font-size:17px;font-weight:700;margin-top:5px;word-break:break-all;letter-spacing:-.3px}
+.row{display:flex;gap:11px;align-items:stretch;flex-wrap:wrap}.row>*{flex:1;min-width:160px}
+label{display:block;font-size:12px;color:var(--tx2);margin:0 0 7px;font-weight:500}
+input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--bd2);border-radius:9px;padding:11px 12px;color:var(--tx);font-size:13px;font-family:inherit;outline:none;transition:.12s}
+input:focus,select:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--ring)}
+textarea{min-height:190px;resize:vertical;font-family:ui-monospace,'SF Mono',monospace;line-height:1.6;font-size:12.5px}
+.fg{margin-bottom:15px}.hint{font-size:11.5px;color:var(--mu);margin-top:6px;line-height:1.65}
+.b{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--grad);color:#fff;font-weight:600;font-size:13px;padding:11px 20px;border-radius:9px;border:none;cursor:pointer;font-family:inherit;text-decoration:none;transition:.12s}
+.pbar{height:7px;border-radius:99px;background:var(--card2);border:1px solid var(--bd);overflow:hidden;margin:12px 0 4px}
+.pbar>i{display:block;height:100%;width:0;background:var(--grad);border-radius:99px;transition:width .25s ease}
+.pbar.indet>i{width:34%;animation:pbslide 1.1s ease-in-out infinite}
+@keyframes pbslide{0%{margin-left:-34%}100%{margin-left:100%}}
+.uchart{display:block}
+.uchart svg rect:hover{fill:color-mix(in srgb,var(--ac) 10%,transparent)!important}
+.urow{border:1px solid var(--bd);border-radius:12px;padding:12px 12px 10px;margin-bottom:10px;background:var(--card2)}
+.urow .uflds{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}
+.urow .uf{display:flex;flex-direction:column;gap:4px}
+.urow .uf.grow{flex:1 1 140px;min-width:130px}
+.urow .uf>label{font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--mu)}
+.urow .uf input{width:100%}
+.urow .uf .tg{flex:0 0 auto;margin-top:2px}
+.urow .ubtns{display:flex;gap:8px;align-items:center}
+.udel{width:38px;height:38px;flex:0 0 38px;border:none;border-radius:9px;background:color-mix(in srgb,var(--dg) 14%,transparent);color:var(--dg);font-size:14px;cursor:pointer;transition:.12s}
+.udel:hover{background:var(--dg);color:#fff}
+.uused{font-size:11.5px;color:var(--mu);margin-top:8px;direction:ltr}
+.b:hover{filter:brightness(1.06)}.b.save{width:100%;margin-top:16px;padding:14px;font-size:14px}.b.save::before{content:'💾 '}.b.g{background:var(--card2);border:1px solid var(--bd2);color:var(--tx)}.b.g:hover{border-color:var(--ac);color:var(--ac);filter:none}
+.iran-btn{flex:0 0 auto;width:auto;padding:8px 16px;font-size:13px;border-radius:999px;box-shadow:0 4px 14px -6px color-mix(in srgb,var(--ac) 65%,transparent);transition:transform .14s,box-shadow .14s,filter .14s}
+.iran-btn::before{content:'⚡';font-size:14px;margin-inline-end:2px}
+.iran-btn:hover{transform:translateY(-1px);filter:brightness(1.05);box-shadow:0 8px 20px -6px color-mix(in srgb,var(--ac) 80%,transparent)}
+.iran-btn:active{transform:translateY(0)}
+.iran-stat{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:12px;padding:5px 12px;border-radius:999px;white-space:nowrap}
+.iran-stat.on{background:color-mix(in srgb,#22c55e 16%,transparent);color:#16a34a}
+.iran-stat.off{background:var(--card2);color:var(--mu);border:1px solid var(--bd2)}
+.stat .sv .udl,.stat .sv .uul{display:block;font-size:13px;line-height:1.34;white-space:nowrap}
+.stat .sv .udl{color:#16a34a}.stat .sv .uul{color:#ef4444}
+.sw{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--bd)}
+.sw:last-child{border-bottom:none}.sw .lbl{font-size:13.5px;font-weight:500}.sw .lbl small{display:block;color:var(--mu);font-size:11px;font-weight:400;margin-top:2px}
+.tg{width:42px;height:24px;border-radius:999px;background:var(--bd2);position:relative;cursor:pointer;flex:0 0 42px;transition:.15s;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--bd) 70%,transparent)}
+.tg.on{background:var(--ac);box-shadow:none}.tg .d{width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;inset-inline-start:3px;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.3)}.tg.on .d{inset-inline-start:21px}
+.logt{width:100%;border-collapse:collapse;font-size:12.5px;white-space:nowrap}
+.logt th{text-align:start;color:var(--mu);font-weight:600;text-transform:uppercase;letter-spacing:.4px;font-size:10.5px;padding:8px 10px;border-bottom:1px solid var(--bd)}
+.logt td{padding:9px 10px;border-bottom:1px solid var(--bd);color:var(--tx2)}
+.logt tr:last-child td{border-bottom:none}
+.logt code{font-size:11.5px;color:var(--tx)}
+.sub-link{display:flex;gap:9px}.sub-link input{flex:1;font-family:ui-monospace,monospace;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin-bottom:16px}
+.stats5{grid-template-columns:repeat(5,1fr)}
+@media(max-width:1100px){.stats5{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.stats5{grid-template-columns:repeat(2,1fr)}}
+/* Phones: stack the top cards full-width, one under another (cleaner/enterprise look) */
+@media(max-width:640px){.stats5{grid-template-columns:1fr}.stats5 .stat{padding:16px 18px}}
+.stat{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--bd);border-radius:13px;padding:15px 16px;box-shadow:var(--shadow)}
+.stat .si{width:40px;height:40px;flex:0 0 40px;border-radius:11px;background:color-mix(in srgb,var(--ac) 13%,transparent);color:var(--ac);display:flex;align-items:center;justify-content:center}.stat .si svg{width:20px;height:20px}
+.stat .sm{min-width:0;flex:1}.stat .sl{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+.stat .sv{font-size:15px;font-weight:700;margin-top:3px;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr}
+html[dir=rtl] .stat .sv{text-align:right}
+.subhero-grid{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.qr{display:flex;justify-content:center}.qr>div{background:#fff;padding:12px;border-radius:14px;box-shadow:var(--shadow);line-height:0}
+.subhero-side{flex:1;min-width:260px}
+.applbl{font-size:10.5px;color:var(--mu);text-transform:uppercase;letter-spacing:.7px;font-weight:700;margin:18px 0 9px}
+.apps{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.appb{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;text-decoration:none;color:var(--tx);border:1px solid var(--bd2);border-radius:11px;padding:10px 13px;cursor:pointer;transition:.14s;background:var(--card2)}
+.appb:hover{border-color:var(--ac);color:var(--ac);transform:translateY(-1px);box-shadow:var(--shadow)}
+.appb .ai{width:25px;height:25px;flex:0 0 25px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
+.subcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:12px}
+.sc{background:var(--card2);border:1px solid var(--bd);border-radius:13px;padding:16px;transition:.14s}.sc:hover{border-color:var(--bd2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.sc-h{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.sc-ic{width:36px;height:36px;border-radius:9px;background:color-mix(in srgb,var(--ac) 14%,transparent);display:flex;align-items:center;justify-content:center;font-size:16px}
+.sc-t{font-size:13.5px;font-weight:700}.sc-d{font-size:11px;color:var(--mu)}
+.sc-url{font-family:ui-monospace,monospace;font-size:10.5px;color:var(--tx2);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:9px;margin-bottom:11px;word-break:break-all;cursor:pointer;max-height:56px;overflow:hidden}
+.sc-act{display:flex;gap:8px}.sc-act button{flex:1;font-size:12px;font-weight:600;padding:9px;border-radius:8px;border:none;cursor:pointer;font-family:inherit}
+.sc-cp{background:var(--grad);color:#fff}.sc-qr{background:var(--bg);border:1px solid var(--bd2);color:var(--tx)}
+.isp-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd)}.isp-row:last-child{border-bottom:none}
+.isp-row .nm{flex:1;font-size:13.5px;font-weight:500}.isp-row .asn{font-size:11px;color:var(--mu)}
+.badge{font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;background:var(--card2);border:1px solid var(--bd2);color:var(--mu)}.badge.has{color:var(--ok);border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08)}
+.seg{display:flex;gap:5px;background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:4px;margin-bottom:16px}
+.seg button{flex:1;border:none;background:transparent;color:var(--tx2);font:inherit;font-size:12.5px;font-weight:600;padding:9px;border-radius:7px;cursor:pointer}
+.seg button.on{background:var(--grad);color:#fff}
+.toast{position:fixed;bottom:24px;inset-inline-end:24px;background:var(--ok);color:#04110b;font-weight:700;font-size:13px;padding:11px 18px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:100;box-shadow:var(--shadow)}.toast.show{opacity:1;transform:none}.toast.err{background:var(--dg);color:#1a0606}
+.modal{position:fixed;inset:0;background:rgba(2,4,8,.66);display:none;align-items:center;justify-content:center;z-index:90;padding:20px;backdrop-filter:blur(3px)}.modal.on{display:flex}
+.modal-c{background:var(--card);border:1px solid var(--bd2);border-radius:16px;padding:24px;max-width:340px;width:100%;text-align:center;box-shadow:var(--shadow)}
+.modal-c h4{font-size:15px;margin-bottom:16px;font-weight:700}.modal-c .qrbox{display:flex;justify-content:center;margin-bottom:14px}.modal-c .qrbox>div{background:#fff;padding:12px;border-radius:12px}
+.modal-c .ml{font-family:ui-monospace,monospace;font-size:10px;color:var(--mu);word-break:break-all;margin-bottom:16px;max-height:60px;overflow:auto}
+.guide-body h4{font-size:14.5px;margin:0 0 13px;display:flex;align-items:center;gap:9px;font-weight:700}
+.gstep{display:flex;gap:12px;padding:7px 0;font-size:13.5px;color:var(--tx2);line-height:1.7}.gstep b{color:var(--tx);font-weight:600}
+.gstep .n{flex:0 0 24px;height:24px;border-radius:7px;background:var(--grad);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+.guide-body code{background:var(--card2);border:1px solid var(--bd);border-radius:5px;padding:1px 6px;font-size:12px;color:var(--ac)}
+.gtip{background:var(--card2);border:1px solid var(--bd);border-inline-start:3px solid var(--ac);border-radius:8px;padding:11px 13px;font-size:12.5px;color:var(--tx2);margin-top:11px;line-height:1.7}
+.mob{display:none}
+@media(max-width:840px){.side{position:fixed;inset-inline-start:-256px;z-index:60;transition:.2s;box-shadow:var(--shadow)}.side.open{inset-inline-start:0}.main{padding:18px}.topbar{padding:11px 16px}.mob{display:inline-flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--bd);border-radius:8px;width:38px;height:38px;color:var(--tx);cursor:pointer}}
+/* Mobile polish: comfortable spacing, bigger tap targets, no iOS zoom-on-focus */
+@media(max-width:560px){
+  .main{padding:13px;padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 22px)}
+  .card{padding:16px;border-radius:12px;margin-bottom:14px}
+  .b{padding:12px 18px}
+  .sw{padding:14px 0}
+  .stat{padding:13px 14px}
+  .tg{flex:0 0 48px;width:48px;height:28px}.tg .d{width:22px;height:22px}.tg.on .d{inset-inline-start:23px}
+  .modal-c{width:94vw;max-width:94vw}
+  .urow .uflds{gap:10px}
+  /* 16px inputs stop iOS Safari from auto-zooming the page when a field is focused */
+  input,select,textarea{font-size:16px}
+}
+html,body{overflow-x:hidden;-webkit-text-size-adjust:100%}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side" id="side">
+<div class="brand"><div class="lg"><svg viewBox="0 0 100 100"><path d="M 28 22 L 28 64 A 13 13 0 0 0 54 64 L 54 36 A 13 13 0 0 1 80 36 L 80 78" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><h1>Nova Proxy</h1><div class="tag">Console</div></div></div>
+<div class="navlabel" data-i="nav_section">Management</div>
+<nav class="nav" id="nav">
+<a data-p="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span data-i="nav_home">Dashboard</span></a>
+<a data-p="sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg><span data-i="nav_sub">Subscriptions</span></a>
+<div class="navgrp" id="grp-conn">
+<a class="navparent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span data-i="nav_conn">Network &amp; IPs</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></a>
+<div class="navsub">
+<a data-p="ip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span data-i="nav_ip">Clean IPs</span></a>
+<a data-p="isp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 14 0"/><path d="M2 12a10 10 0 0 1 20 0"/><circle cx="12" cy="12" r="2"/></svg><span data-i="nav_isp">Per-ISP pools</span></a>
+<a data-p="net"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6M7 12H1"/></svg><span data-i="nav_net">Network &amp; DNS</span></a>
+</div>
+</div>
+<a data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="8" cy="18" r="2" fill="currentColor"/></svg><span data-i="nav_set">Settings</span></a>
+<a data-p="notif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span data-i="nav_notif">Notifications</span></a>
+<a data-p="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span data-i="nav_users">Users</span></a>
+<a data-p="logs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg><span data-i="nav_logs">Logs</span></a>
+<a data-p="guide" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span data-i="nav_guide">Guide</span></a>
+</nav>
+<div class="bottom">
+<div class="toolbar">
+<div class="lang" id="lg"><button data-l="en" class="on">EN</button><button data-l="fa">فا</button></div>
+<button class="theme-btn" id="theme" title="Theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+</div>
+<div class="social">
+<a href="https://novaproxy.online" target="_blank" rel="noopener" title="novaproxy.online" aria-label="Website"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></a>
+<a href="https://t.me/irnova_proxy" target="_blank" rel="noopener" title="Telegram" aria-label="Telegram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.94 4.6 18.9 19.2c-.23 1.01-.83 1.26-1.68.78l-4.64-3.42-2.24 2.16c-.25.25-.46.46-.94.46l.33-4.73 8.6-7.77c.37-.33-.08-.52-.58-.19l-10.63 6.7-4.58-1.43c-1-.31-1.01-1 .21-1.48l17.9-6.9c.83-.31 1.56.19 1.29 1.45z"/></svg></a>
+<a href="https://www.youtube.com/@novaproxyir" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.2-.4-4.7a2.5 2.5 0 0 0-1.76-1.77C19.34 5.13 12 5.13 12 5.13s-7.34 0-8.84.4A2.5 2.5 0 0 0 1.4 7.3C1 8.8 1 12 1 12s0 3.2.4 4.7a2.5 2.5 0 0 0 1.76 1.77c1.5.4 8.84.4 8.84.4s7.34 0 8.84-.4a2.5 2.5 0 0 0 1.76-1.77C23 15.2 23 12 23 12zM9.75 15.5v-7l6.25 3.5-6.25 3.5z"/></svg></a>
+<a href="https://x.com/irNovaProxy" target="_blank" rel="noopener" title="X (@irNovaProxy)" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+<a id="s-guide" href="#" title="Guide" aria-label="Guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></a>
+</div>
+<a class="logout" href="/logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span data-i="logout">Logout</span></a>
+</div>
+</aside>
+<div class="wrap">
+<header class="topbar"><div style="display:flex;align-items:center;gap:12px"><button class="mob" id="mob">☰</button><div style="display:flex;flex-direction:column;justify-content:center"><span class="tt" id="topTitle" data-i="nav_home">Dashboard</span><span class="tts" id="topSub" data-i="home_s">Status of your proxy.</span></div></div>
+<div style="display:flex;align-items:center;gap:10px"><button class="tour-help" id="tour-btn" type="button" title="Guide" aria-label="Guide">?</button><div class="bellwrap"><button class="bell" id="bell-btn" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="bell-dot" id="bell-dot"></span></button><div class="bell-menu" id="bell-menu"></div></div><span class="pill"><span class="dot ok" id="pill-dot"></span><span id="pill-host">…</span></span></div></header>
+<main class="main">
+<a id="nova-banner" href="#" target="_blank" rel="noopener" style="display:none;margin-bottom:16px;padding:12px 16px;border-radius:12px;background:color-mix(in srgb,var(--ac) 12%,transparent);border:1px solid color-mix(in srgb,var(--ac) 35%,transparent);color:var(--tx);text-decoration:none;font-size:13px;font-weight:600;align-items:center;gap:8px"></a>
+
+<section class="page on" id="p-home">
+<div class="sec-h" data-i="home_h">Dashboard</div><div class="sec-s" data-i="home_s">Status of your proxy.</div>
+
+<div class="stats stats5">
+<div class="stat"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div><div class="sm"><div class="sl" data-i="st_host">Host</div><div class="sv" id="st-host">…</div></div></div>
+<div class="stat"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.5a9 9 0 0 1 14 0"/><path d="M8.5 16a4.5 4.5 0 0 1 7 0"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg></div><div class="sm"><div class="sl" data-i="st_net">Network</div><div class="sv" id="st-net">…</div></div></div>
+<div class="stat"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div><div class="sm"><div class="sl" data-i="st_kv">Storage</div><div class="sv" id="st-kv">…</div></div></div>
+<div class="stat"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div><div class="sm"><div class="sl" data-i="st_worker">Worker usage</div><div class="sv" id="st-app">…</div></div></div>
+<div class="stat"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div><div class="sm"><div class="sl" data-i="st_traffic">Traffic today</div><div class="sv" id="st-traffic">…</div></div></div>
+</div>
+<div class="card" data-tour="help_iran" style="border-color:color-mix(in srgb,var(--ac) 40%,transparent)"><h3 data-i="iran_h">🇮🇷 Iran mode (one tap)</h3>
+<div class="sec-s" style="margin:0 0 10px" data-i="iran_s">Turns on the best resilience combo for Iran at once: all protocols + port-spread + fragment + ECH + free public nodes (and blocks QUIC, disables IPv6).</div>
+<div class="row" style="gap:12px;align-items:center"><button class="b iran-btn" id="iran-mode" data-i="iran_btn">Enable Iran mode</button><span id="iran-status" class="iran-stat off"></span></div>
+<div id="iran-report" style="margin-top:14px"></div></div>
+<div class="card subhero" data-tour="help_yoursub"><h3 data-i="your_sub">Your subscription link</h3>
+<div class="subhero-grid">
+<div class="qr"><div id="qr"></div></div>
+<div class="subhero-side">
+<div class="sub-link"><input id="sub-link" readonly /><button class="b" id="cp" data-i="copy">Copy</button></div>
+<div class="applbl" data-i="open_in">Open in app</div>
+<div class="apps">
+<a id="a-h" class="appb"><span class="ai" style="background:#7c5cff">H</span>Hiddify</a>
+<a id="a-v" class="appb"><span class="ai" style="background:#2563eb">V</span>v2rayNG</a>
+<a id="a-c" class="appb"><span class="ai" style="background:#0ea5c4">F</span>FlClash</a>
+<a id="a-k" class="appb"><span class="ai" style="background:#16a34a">K</span>Karing</a>
+<a id="a-s" class="appb"><span class="ai" style="background:#475569">S</span>sing-box</a>
+</div>
+<p class="hint" data-i="sub_hint">Share this link or QR. The app picks the fastest clean IP automatically.</p>
+</div></div>
+</div>
+</section>
+
+<section class="page" id="p-sub">
+<div class="sec-h" data-i="nav_sub">Subscriptions</div><div class="sec-s" data-i="sub_s2">One link per app format. Copy or scan a QR.</div>
+
+<div class="card" data-tour="help_formats"><h3 data-i="sub_formats">Formats</h3><div class="subcards" id="subcards"></div></div>
+<div class="card" data-tour="help_ports"><h3 data-i="sub_ports">Per-port single nodes</h3><div class="subcards" id="portcards"></div></div>
+</section>
+
+<section class="page" id="p-ip">
+<div class="sec-h" data-i="nav_ip">Clean IPs</div><div class="sec-s" data-i="ip_s">How the subscription chooses Cloudflare IPs.</div>
+
+<div class="card" data-tour="help_speedtest" style="border-color:color-mix(in srgb,var(--ac) 40%,transparent)"><h3 data-i="st_h">🚀 Speed test</h3><div class="sec-s" style="margin:0 0 10px" data-i="st_s">Find the fastest clean IPs for your current network (MCI / Irancell / …) and apply them automatically.</div><div id="sc-isp" class="hint" style="margin:0 0 10px"></div><button class="b" id="sc-speedtest" data-i="st_btn" style="width:auto;padding:12px 24px">Speed test &amp; apply best</button> <span id="sc-stmsg" class="hint"></span><div id="sc-pbar" class="pbar" style="display:none"><i></i></div></div>
+<div class="card" data-tour="help_mode"><h3 data-i="ip_mode">Mode</h3>
+<div class="seg" id="ipseg"><button data-m="smart" data-i="m_smart">Smart (per-ISP)</button><button data-m="custom" data-i="m_custom">Custom list</button><button data-m="random" data-i="m_random">Random</button></div>
+<div id="m-smart-box"><div class="fg"><label data-i="poolapi">Smart IP API (per-ISP database)</label><input id="f-poolapi" placeholder="https://nova-deploy.pages.dev/api/pool" /><p class="hint" data-i="poolapi_h">Serves each user IPs tuned to their ISP.</p></div></div>
+<div id="m-custom-box" style="display:none"><div class="fg"><label data-i="custom_ips">Custom clean IPs (ip:port#name)</label><textarea id="f-add" spellcheck="false"></textarea><div class="row" style="gap:6px;margin-top:6px;align-items:center"><button type="button" class="b g" id="add-clean-ips" data-i="add_clean_ips" style="width:auto;padding:6px 12px;font-size:12px">+ Add sample clean Cloudflare IPs</button><span class="hint" data-i="clean_ips_hint" style="flex:1">starter list — the per-ISP Smart pool finds better ones per network</span></div></div></div>
+<div id="m-random-box" style="display:none"><div class="row"><div class="fg"><label data-i="rand_count">Random count</label><input id="f-rcount" type="number" min="1" max="999" /></div><div class="fg"><label data-i="rand_port">Port (-1 = mixed)</label><input id="f-rport" type="number" /></div></div></div>
+<button class="b save" id="save-ip" data-i="save_all">Save all settings on this page</button></div>
+<div class="card" data-tour="help_scan" id="scan-card" style="display:none"><h3 data-i="scan_h">Online optimization (browser scan)</h3>
+<div class="sec-s" style="margin:0 0 12px" data-i="scan_help">Tests Cloudflare IPs from your browser and keeps the fastest. Works when the worker is not blocked on your network. This is an approximate latency test, not a port scan.</div>
+<div class="row">
+<div class="fg"><label data-i="scan_src">Source</label><select id="sc-src"><option value="random" data-i="scan_src_random">Random Cloudflare</option><option value="official">Cloudflare official ranges</option><option value="as13335">AS13335 (Cloudflare)</option><option value="as209242">AS209242 (Cloudflare)</option><option value="as24429">AS24429</option><option value="as35916">AS35916</option><option value="as199524">AS199524</option><option value="cm">CF-CIDR (community)</option><option value="proxyip">ProxyIP pool</option><option value="dominos">Nova domains (DNS)</option><option value="irdominos">Nova IR domains (DNS)</option></select></div>
+<div class="fg"><label data-i="scan_port">Port</label><select id="sc-port"><option>443</option><option>2053</option><option>2083</option><option>2087</option><option>2096</option><option>8443</option></select></div>
+<div class="fg"><label data-i="scan_keep">Keep best</label><input id="sc-keep" type="number" min="1" max="50" value="10" /></div>
+<div class="fg"><label data-i="scan_total">IPs to test</label><input id="sc-total" type="number" min="10" max="400" value="120" /></div>
+</div>
+<div class="row" style="align-items:center;gap:12px"><button class="b" id="sc-start" data-i="scan_start" style="width:auto;padding:11px 22px">Start scan</button><div id="sc-prog" class="hint" style="margin-top:0;flex:1"></div></div>
+<div id="sc-results" style="margin-top:12px;overflow-x:auto"></div>
+<button class="b g" id="sc-use" data-i="scan_use" style="display:none;margin-top:12px">Use these in the custom list</button></div>
+</section>
+
+<section class="page" id="p-isp">
+<div class="sec-h" data-i="nav_isp">Per-ISP pools</div><div class="sec-s" data-i="isp_s">Live clean-IP counts from the crowd database, by Iranian ISP.</div>
+
+<div class="card" data-tour="help_isp"><h3 data-i="isp_live">Live pools</h3><div id="isp-list"></div>
+<p class="hint" data-i="isp_hint">Counts grow as Nova Radar scans on each network.</p>
+<button class="b g" id="isp-refresh" data-i="refresh" style="margin-top:14px">Refresh</button></div>
+</section>
+
+<section class="page" id="p-set">
+<div class="sec-h" data-i="nav_set">Settings</div><div class="sec-s" data-i="set_s">Protocol, transport, and security.</div>
+
+<div class="card" data-tour="help_proto"><h3 data-i="set_proto">Protocol &amp; transport</h3>
+<div class="row"><div class="fg"><label data-i="protocol">Protocol</label><select id="f-proto"><option value="vless">VLESS</option><option value="trojan">Trojan</option><option value="ss">Shadowsocks</option><option value="all" data-i="proto_all">All (VLESS + Trojan + SS)</option></select></div>
+<div class="fg"><label data-i="transport">Transport</label><select id="f-trans"><option value="ws">WebSocket</option><option value="xhttp">XHTTP</option><option value="grpc">gRPC</option></select></div></div>
+<div class="row"><div class="fg"><label data-i="path_lbl">Transport path</label><input id="f-path" placeholder="/" /><p class="hint" data-i="path_h">The WebSocket/gRPC path. Keep "/" unless you know you need a custom one.</p></div>
+<div class="fg"><label data-i="grpcmode_lbl">gRPC mode</label><select id="f-grpcmode"><option value="gun">gun</option><option value="multi">multi</option></select><p class="hint" data-i="grpcmode_h">Only used when Transport is gRPC.</p></div></div>
+<div class="fg"><label data-i="fp">TLS fingerprint</label><select id="f-fp"><option value="random" data-i="fp_random">random — recommended for Iran now</option><option>chrome</option><option>firefox</option><option>safari</option><option>ios</option><option>android</option><option>edge</option><option>360</option><option>qq</option><option>randomized</option></select><p class="hint" data-i="fp_hint">"random" works best in Iran right now; if it stops working, try another or scan a different one.</p></div>
+<div class="fg"><label data-i="frag">TLS fragment (DPI evasion)</label><select id="f-frag"><option value="">Off</option><option value="Shadowrocket">Shadowrocket</option><option value="Happ">Happ</option><option value="custom" data-i="frag_custom">Custom</option></select><p class="hint" data-i="frag_hint">If fragment stops working on your ISP (MCI / Irancell / …), pick Custom and switch the packets between <b>tlshello</b>, <b>1-1</b> and <b>1-3</b> — different values work on different Iranian ISPs.</p></div>
+<div class="fg"><label data-i="proxyip">PROXYIP (reverse proxy, optional)</label><select id="f-proxyip-sel" style="margin-bottom:8px"><option value="" data-i="px_custom">Custom</option><option>bpb.yousef.isegaro.com</option><option>proxyip.cmliussss.net</option><option>cdn-all.xn--b6gac.eu.org</option><option>proxyip.fxxk.dev</option><option>turn.cloudflare.com</option></select><input id="f-proxyip" placeholder="host or ip[:port]" /></div>
+<div class="fg"><label data-i="chain_lbl">Chain proxy / fix IP (optional)</label><input id="f-chainproxy" placeholder="socks5://user:pass@host:port" /><p class="hint" data-i="chain_h">Routes every node's exit through your own upstream proxy (socks5 / http / https) — use it to reach sites that block Cloudflare IPs, or to get a stable exit IP. Leave empty for normal Cloudflare exit.</p><div class="row" style="gap:8px;align-items:center;margin-top:6px"><button class="b g" id="chain-test" data-i="chain_test" style="flex:0 0 auto;width:auto;padding:9px 16px">Test</button><span id="chain-status" class="hint" style="flex:1"></span></div></div>
+<div class="fg"><label data-i="uuid_lbl">UUID (used in your configs)</label><div class="row" style="gap:8px;align-items:center"><input id="f-uuid" readonly style="flex:1;font-family:ui-monospace,monospace;font-size:12px" /><button class="b g" id="uuid-copy" data-i="copy" style="flex:0 0 auto;width:auto;padding:11px 20px">Copy</button></div></div></div>
+<div class="card" data-tour="help_hosts"><h3 data-i="hosts_h">Domains (HOST)</h3>
+<div class="sec-s" style="margin:0 0 12px" data-i="hosts_help">One domain per line. Configs are built across these, so the app can switch domains if one is blocked. The first is the main host.</div>
+<div class="fg"><textarea id="f-hosts" style="min-height:96px" placeholder="vpn.example.com&#10;cdn.example.com"></textarea></div>
+<div class="row" style="gap:8px;align-items:center"><button class="b g" id="hosts-check" data-i="hosts_check" style="flex:0 0 auto;width:auto;padding:11px 20px">Check health</button><span id="hosts-health" class="hint" style="flex:1"></span></div>
+<div class="gtip" data-i="hosts_connect">⚠️ First connect each domain to your Worker (Cloudflare → your Worker → Settings → Domains &amp; Routes → Add Custom Domain). Add it here only after it points to the Worker, otherwise configs won't connect.</div></div>
+<div class="card" data-tour="help_setsec"><h3 data-i="set_sec">Security</h3>
+<div class="sw"><div class="lbl"><span data-i="tls_lbl">TLS</span><small data-i="tls_h">encrypt the tunnel (off = plain WS on HTTP ports)</small></div><div class="tg" id="t-tls"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl">ECH<small data-i="ech_h">Encrypted Client Hello</small></div><div class="tg" id="t-ech"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl" data-i="zerortt">0-RTT</div><div class="tg" id="t-0rtt"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl" data-i="randpath">Random path</div><div class="tg" id="t-rp"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl" data-i="skipcert">Skip cert verify<small data-i="skipcert_h">allow insecure TLS</small></div><div class="tg" id="t-scv"><div class="d"></div></div></div></div>
+<div class="card" data-tour="help_adv"><h3 data-i="adv_h">Advanced (CDN / Fragment / ECH)</h3>
+<div class="sec-s" style="margin:0 0 12px" data-i="adv_s">Optional tuning. Leave blank for defaults. Press Save, then re-import the link in your app.</div>
+<div class="row" id="frag-presets" style="gap:6px;flex-wrap:wrap;margin:-2px 0 8px"><span class="hint" data-i="frag_presets_lbl" style="width:100%;margin-bottom:2px">🇮🇷 Iran fragment presets (tap to fill Custom, then Save):</span>
+<button type="button" class="b g frag-preset" data-pkt="tlshello" data-len="40-60" data-int="30-50" style="width:auto;padding:6px 11px;font-size:12px">Gentle</button>
+<button type="button" class="b g frag-preset" data-pkt="1-3" data-len="10-20" data-int="10-20" style="width:auto;padding:6px 11px;font-size:12px">Balanced</button>
+<button type="button" class="b g frag-preset" data-pkt="1-1" data-len="1-3" data-int="1-2" style="width:auto;padding:6px 11px;font-size:12px">Aggressive</button></div>
+<div id="frag-custom-box" style="display:none"><div class="row">
+<div class="fg"><label data-i="frag_len">Fragment length</label><input id="f-frag-len" placeholder="100-200" /></div>
+<div class="fg"><label data-i="frag_int">Fragment interval</label><input id="f-frag-int" placeholder="10-20" /></div>
+<div class="fg"><label data-i="frag_pkt">Fragment packets</label><input id="f-frag-pkt" placeholder="tlshello / 1-1 / 1-3" /></div>
+</div></div>
+<div class="row">
+<div class="fg"><label data-i="cdn_host">Custom CDN — Host</label><input id="f-cdn-host" placeholder="leave blank = your domains" /></div>
+<div class="fg"><label data-i="cdn_sni">Custom CDN — SNI (clean / white domain)</label><input id="f-cdn-sni" list="clean-snis" placeholder="leave blank = your domains" /><datalist id="clean-snis"><option value="creativecommons.org"></option><option value="time.cloudflare.com"></option><option value="www.speedtest.net"></option><option value="zula.ir"></option></datalist></div>
+</div>
+<p class="hint" data-i="cleansni_hint">🇮🇷 <b>Clean-SNI trick:</b> set the SNI to a white/allowed domain so DPI sees an allowed name. ⚠️ This works with your <b>own</b> clean (sub)domain, or alongside <b>TLS Fragment / ECH</b> above — true cross-domain fronting (e.g. <i>creativecommons.org</i> → your worker) is blocked by Cloudflare and won't connect. For packet-level SNI spoofing use a device-side tool (see the Guide).</p>
+<div class="row">
+<div class="fg"><label data-i="ech_sni">ECH SNI</label><input id="f-ech-sni" placeholder="cloudflare-ech.com" /></div>
+<div class="fg"><label data-i="ech_dns">ECH DoH</label><input id="f-ech-dns" placeholder="https://dns.alidns.com/dns-query" /></div>
+</div>
+<div class="fg"><label data-i="central_api">Central API (management server, optional)</label><input id="f-central" placeholder="https://your-central-server" /></div>
+<div class="fg"><label data-i="fallback_lbl">Extra node sources (multi-protocol, optional)</label><textarea id="f-fallback" spellcheck="false" style="min-height:90px" placeholder="https://example.com/config.json&#10;https://example.com/sub-base64&#10;vmess://...&#10;hysteria2://..."></textarea><p class="hint" data-i="fallback_h">One per line. URLs to a sing-box config.json, a base64/v2ray subscription, or raw node links (vmess/vless/trojan/ss/hysteria/hy2/tuic/wireguard). These external nodes are blended into every sub so clients have cross-protocol failover. The worker can't SERVE hysteria/hy2/tuic — these are external servers.</p>
+<div class="sw"><div class="lbl"><span data-i="pubnodes_lbl">Include free public nodes</span><small data-i="pubnodes_h">blend an auto-updated third-party list (vmess/hysteria/tuic/…) into every sub</small></div><div class="tg" id="t-publicnodes"><div class="d"></div></div></div>
+<div class="row" style="gap:8px;align-items:center"><button class="b g" id="fallback-preview" data-i="fallback_preview" style="flex:0 0 auto;width:auto;padding:11px 20px">Preview blended nodes</button><span id="fallback-info" class="hint" style="flex:1"></span></div><div id="fb-pbar" class="pbar" style="display:none;margin-top:10px"><i></i></div></div>
+<p class="hint" data-i="adv_hint">Custom CDN sets a fixed Host/SNI (use a real CDN domain with a clean-IP address). ECH needs the ECH toggle on (Security above). Central API enables heartbeat + broadcast announcements when you run a Nova control server.</p>
+</div>
+<div class="card" data-tour="help_naming"><h3 data-i="sub_naming">Naming &amp; updates</h3>
+<div class="row"><div class="fg"><label data-i="sub_name">Subscription name</label><input id="f-subname" /></div>
+<div class="fg"><label data-i="sub_int">Update interval (hours)</label><input id="f-subint" type="number" min="1" max="168" /></div></div>
+<div class="fg"><label data-i="sub_api">Subscription converter API</label><input id="f-subapi" /></div>
+<div class="fg"><label data-i="subcfg">Routing rule set (Clash/sing-box)</label><select id="f-subcfg-sel" style="margin-bottom:8px"><option value="" data-i="px_custom">Custom</option><option value="https://raw.githubusercontent.com/cmliu/ACL4SSR/refs/heads/main/Clash/config/ACL4SSR_Online_Mini_MultiMode_CF.ini">ACL4SSR Mini MultiMode (CF)</option><option value="https://raw.githubusercontent.com/cmliu/ACL4SSR/refs/heads/main/Clash/config/ACL4SSR_Online_Mini.ini">ACL4SSR Mini</option><option value="https://raw.githubusercontent.com/cmliu/ACL4SSR/refs/heads/main/Clash/config/ACL4SSR_Online.ini">ACL4SSR Standard</option><option value="https://raw.githubusercontent.com/cmliu/ACL4SSR/refs/heads/main/Clash/config/ACL4SSR_Online_Full.ini">ACL4SSR Full</option></select><input id="f-subcfg" placeholder="rule-set .ini URL" /></div>
+<div class="sw"><div class="lbl"><span data-i="notice_lbl">Free-service notice</span><small data-i="notice_h">adds a labelled node to the list so users know it's the free Nova service</small></div><div class="tg" id="t-notice"><div class="d"></div></div></div>
+<div class="fg"><label data-i="notice_txt">Notice text (fixed)</label><input id="f-noticetext" value="🎁 Free service — novaproxy.online | سرویس رایگان نوا" readonly disabled style="opacity:.6;cursor:not-allowed" /></div>
+<div class="sw"><div class="lbl"><span data-i="ports_lbl">Port spread (443 / 2053 / 2083 / 2087 / 2096 / 8443)</span><small data-i="ports_h">fan each config across all Cloudflare TLS ports — if one port is throttled the client tries another</small></div><div class="tg" id="t-portspread"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="mt_lbl">Multi-transport (WS + gRPC + XHTTP)</span><small data-i="mt_h">emit each config over all three transports for more DPI diversity (needs a custom domain bound to the Worker, which you have)</small></div><div class="tg" id="t-multitrans"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="paid_lbl">⚡ Paid Worker plan — performance mode</span><small data-i="paid_h">ONLY enable if your Cloudflare Worker is on a PAID plan. It lifts the free-plan node cap (150 → up to 1000) for richer configs. On the FREE plan leave this OFF — it will cause Error 1101 (10 ms CPU limit).</small></div><div class="tg" id="t-paidplan"><div class="d"></div></div></div>
+<button class="b save" id="save-sub" data-i="save_all">Save all settings on this page</button></div>
+<div class="card" data-tour="help_mirror"><h3 data-i="mirror_h">GitHub mirror (blocked-domain failover)</h3>
+<p class="hint" data-i="mirror_intro">Publishes your sub to a GitHub repo so users keep a permanent raw.githubusercontent.com link that still works if your domain gets filtered. Use a fine-grained token with Contents: read/write on that repo.</p>
+
+<div class="sw"><div class="lbl"><span data-i="mirror_en">Enable mirror</span><small data-i="mirror_en_h">also auto-publishes hourly</small></div><div class="tg" id="t-mirror"><div class="d"></div></div></div>
+<div class="row"><div class="fg"><label data-i="mirror_repo">Repo (owner/name)</label><input id="f-gh-repo" placeholder="iiviirv/nova-sub" /></div>
+<div class="fg"><label data-i="mirror_branch">Branch</label><input id="f-gh-branch" placeholder="main" /></div></div>
+<div class="row"><div class="fg"><label data-i="mirror_path">Path (optional)</label><input id="f-gh-path" placeholder="sub" /></div>
+<div class="fg"><label data-i="mirror_token">GitHub token</label><input id="f-gh-token" type="password" placeholder="ghp_..." autocomplete="off" /></div></div>
+<div class="row" style="gap:8px;align-items:center"><button class="b g" id="mirror-publish" data-i="mirror_publish" style="flex:0 0 auto;width:auto;padding:11px 20px">Publish now</button><span id="mirror-status" class="hint" style="flex:1"></span></div></div>
+<div class="card" data-tour="help_backup"><h3 data-i="backup_h">Backup &amp; restore</h3>
+<div class="sec-s" style="margin:0 0 10px" data-i="backup_s">Export all settings (config + network + users) to a file, or restore from one. The file contains secrets (tokens) — keep it safe.</div>
+<div class="row" style="gap:8px"><button class="b g" id="backup-export" data-i="backup_export" style="width:auto;padding:10px 18px">Export</button><button class="b g" id="backup-import" data-i="backup_import" style="width:auto;padding:10px 18px">Import</button><input id="backup-file" type="file" accept="application/json,.json" style="display:none" /></div>
+<span id="backup-status" class="hint"></span></div>
+<div class="card" data-tour="help_health"><h3 data-i="health_h">Domain health</h3>
+<div class="sec-s" style="margin:0 0 10px" data-i="health_s">Live status of your front domains. The hourly cron also auto-announces changes to Telegram.</div>
+
+<div class="row" style="gap:8px;align-items:center"><button class="b g" id="health-refresh" data-i="health_check" style="width:auto;padding:9px 16px">Check now (from Cloudflare)</button><button class="b g" id="health-ping" data-i="health_ping" style="width:auto;padding:9px 16px">Ping from my device</button><span id="health-list" class="hint" style="flex:1"></span></div>
+<div id="health-ping-out" class="hint" style="margin-top:8px;display:none"></div></div>
+
+<div class="card" data-tour="help_security2" id="sec-card">
+<h3 data-i="sec_h">🔒 Security</h3>
+<div class="sec-s" style="margin:0 0 12px" data-i="sec_s">Change your panel password and turn on two-factor authentication.</div>
+<div id="sec-recovery" class="hint" style="display:none;margin:0 0 12px;padding:9px 12px;border-radius:9px;background:color-mix(in srgb,var(--wn) 14%,transparent);border:1px solid color-mix(in srgb,var(--wn) 35%,transparent);color:var(--tx2)"></div>
+<div class="fg"><label data-i="sec_current">Current password (for sharing)</label><div class="row" style="gap:8px;align-items:center"><code id="sec-curpass" style="flex:1;background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;direction:ltr">••••••••</code><button class="b g" id="sec-reveal" data-i="sec_reveal" style="width:auto;padding:9px 16px">Show</button><button class="b g" id="sec-curcopy" data-i="sec_curcopy" style="width:auto;padding:9px 16px">Copy</button></div></div>
+<hr style="border:none;border-top:1px solid var(--bd);margin:14px 0" />
+<div class="fg"><label data-i="sec_cur">Current password</label><input id="sec-cur" type="password" autocomplete="current-password" /></div>
+<div class="row"><div class="fg"><label data-i="sec_new">New password</label><input id="sec-new" type="password" autocomplete="new-password" /></div><div class="fg"><label data-i="sec_new2">Repeat new password</label><input id="sec-new2" type="password" autocomplete="new-password" /></div></div>
+<button class="b" id="sec-chpw" data-i="sec_chpw" style="width:auto;padding:11px 20px">Change password</button> <span id="sec-chpw-msg" class="hint"></span>
+<p class="hint" data-i="sec_pw_h">Your existing client configs keep working — your proxy ID stays the same.</p>
+<hr style="border:none;border-top:1px solid var(--bd);margin:16px 0" />
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div><b data-i="sec_2fa">Two-factor authentication</b><p class="hint" style="margin-top:4px" data-i="sec_2fa_h">Use Google Authenticator, Authy, Keeper, etc. A 6-digit code is asked at login.</p></div><span id="sec-2fa-state" class="hint"></span></div>
+<div id="sec-2fa-off"><button class="b" id="sec-2fa-start" data-i="sec_2fa_on" style="width:auto;padding:11px 20px">Enable 2FA</button></div>
+<div id="sec-2fa-setup" style="display:none;margin-top:12px">
+<div id="sec-qr" style="display:flex;justify-content:center;margin:10px 0;background:#fff;padding:12px;border-radius:12px;width:max-content"></div>
+<p class="hint" data-i="sec_2fa_scan">Scan the QR in your authenticator app, or type this key manually:</p>
+<div class="fg"><input id="sec-2fa-secret" readonly style="font-family:ui-monospace,monospace;letter-spacing:1px" /></div>
+<div class="fg"><label data-i="sec_2fa_code">Enter the 6-digit code to confirm</label><input id="sec-2fa-codein" type="text" inputmode="numeric" maxlength="6" placeholder="123456" /></div>
+<button class="b" id="sec-2fa-confirm" data-i="sec_2fa_confirm" style="width:auto;padding:11px 20px">Confirm &amp; turn on</button> <span id="sec-2fa-msg" class="hint"></span>
+</div>
+<div id="sec-2fa-on" style="display:none;margin-top:12px">
+<div class="fg"><label data-i="sec_2fa_dcode">Authenticator code to turn it off</label><input id="sec-2fa-dcodein" type="text" inputmode="numeric" maxlength="6" placeholder="123456" /></div>
+<button class="b" id="sec-2fa-disable" data-i="sec_2fa_off" style="width:auto;padding:11px 20px">Disable 2FA</button> <span id="sec-2fa-dmsg" class="hint"></span>
+</div>
+</div>
+<button class="b save" id="save-set" data-i="save_all">Save all settings on this page</button>
+</section>
+
+<section class="page" id="p-net">
+<div class="sec-h" data-i="nav_net">Network &amp; DNS</div><div class="sec-s" data-i="net_s">Routing rules, ad-blocking, and secure DNS. These are baked into every Clash and sing-box config you hand out.</div>
+
+
+<div class="card" data-tour="help_warp"><h3 data-i="warp_h">WARP (Cloudflare WireGuard)</h3>
+<div class="sec-s" style="margin:0 0 12px" data-i="warp_hint">Route through Cloudflare's WARP network. Unlimited (it bypasses the worker's request limit) and often reaches blocked services. Register once, then turn it on.</div>
+<div class="sw"><div class="lbl"><span data-i="warp_en">Enable WARP</span><small data-i="warp_en_h">add a WireGuard outbound to every config</small></div><div class="tg" id="t-warp"><div class="d"></div></div></div>
+<div class="fg"><label data-i="warp_mode">Mode</label><select id="n-warpmode"><option value="warp" data-i="warp_mode_warp">WARP only (all traffic via WARP)</option><option value="chain" data-i="warp_mode_chain">Chain (proxy, then WARP)</option><option value="wow" data-i="warp_mode_wow">WoW (two WARP hops)</option></select></div>
+<div class="sw"><div class="lbl"><span data-i="warp_amnezia">AmneziaWG obfuscation</span><small data-i="warp_amnezia_h">junk packets so DPI can't fingerprint WARP (Clash)</small></div><div class="tg" id="t-warp-amnezia"><div class="d"></div></div></div>
+<div class="fg"><label data-i="warp_ep">WARP endpoint (optional override)</label><input id="n-warpep" placeholder="engage.cloudflareclient.com:2408" /></div>
+<div class="fg"><label data-i="warp_dl_lbl">Download WARP configs (50 endpoints, ready to import)</label><div class="row" style="gap:8px"><a class="b g" href="/warp?target=wireguard&amp;count=50" target="_blank" rel="noopener" data-i="warp_dl_wg" style="flex:1;text-align:center;padding:11px 0;text-decoration:none">WireGuard</a><a class="b g" href="/warp?target=nekoray&amp;count=50" target="_blank" rel="noopener" data-i="warp_dl_neko" style="flex:1;text-align:center;padding:11px 0;text-decoration:none">NekoRay</a></div></div>
+<div class="row">
+<div class="fg"><label data-i="wn_mode">Noise mode</label><select id="n-warp-nmode"><option value="">Off</option><option value="quic">quic</option><option value="random">random</option></select></div>
+<div class="fg"><label data-i="wn_count">Noise count</label><input id="n-warp-ncount" placeholder="10-15" /></div>
+<div class="fg"><label data-i="wn_size">Noise size</label><input id="n-warp-nsize" placeholder="5-10" /></div>
+<div class="fg"><label data-i="wn_delay">Noise delay</label><input id="n-warp-ndelay" placeholder="1-1" /></div>
+</div>
+<div class="fg"><label data-i="warp_acc">WARP account</label><div class="row" style="gap:8px;align-items:center"><div id="warp-status" class="hint" style="flex:1;margin-top:0">…</div><button class="b" id="warp-reg" data-i="warp_register" style="flex:0 0 auto;width:auto;padding:11px 20px">Register</button></div></div>
+<div class="fg"><label data-i="warp_lic">WARP+ license (optional)</label><div class="row" style="gap:8px;align-items:center"><input id="n-warplic" placeholder="xxxxxxxx-xxxxxxxx-xxxxxxxx" style="flex:1" /><button class="b" id="warp-lic-btn" data-i="warp_apply" style="flex:0 0 auto;width:auto;padding:11px 20px">Apply</button><button class="b g" id="warp-central-btn" data-i="warp_central" style="flex:0 0 auto;width:auto;padding:11px 16px">From central pool</button></div><p class="hint" data-i="warp_lic_h">Free WARP works with no key — just tap Register. For more speed, paste a free WARP+ key (shared in community channels) here and Apply.</p></div></div>
+
+<div class="card" data-tour="help_routing"><h3 data-i="net_routing">Smart routing</h3>
+<div class="sec-s" style="margin:0 0 12px" data-i="net_routing_h">Decide what goes through the proxy and what stays direct.</div>
+<div class="sw"><div class="lbl"><span data-i="net_enroute">Enable routing rules</span><small data-i="net_enroute_h">turn the rule engine on</small></div><div class="tg" id="t-routing"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="net_domestic">Iran domestic direct</span><small data-i="net_domestic_h">Iranian sites bypass the proxy (faster, no quota use)</small></div><div class="tg" id="t-domestic"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="net_geoip">GeoIP routing</span><small data-i="net_geoip_h">route by IP country</small></div><div class="tg" id="t-geoip"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="net_geosite">GeoSite routing</span><small data-i="net_geosite_h">route by domain list</small></div><div class="tg" id="t-geosite"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="net_adblock">Block ads &amp; trackers</span><small data-i="net_adblock_h">drops known ad/tracker domains</small></div><div class="tg" id="t-adblock"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="net_porn">Adult-content filter</span><small data-i="net_porn_h">block adult domains</small></div><div class="tg" id="t-porn"><div class="d"></div></div></div></div>
+
+<div class="card" data-tour="help_rules"><h3 data-i="rules_h">Custom routing rules</h3>
+<div class="sec-s" style="margin:0 0 12px" data-i="rules_help">One rule per line, applied on top of the rule set. Format: TYPE,value,OUTBOUND. Example: DOMAIN-SUFFIX,arvancloud.ir,DIRECT or DOMAIN-KEYWORD,ads,REJECT. OUTBOUND is DIRECT, REJECT, or PROXY. Needs routing enabled.</div>
+<div class="fg" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+<select id="cr-type" style="flex:1;min-width:140px"><option value="DOMAIN-SUFFIX">DOMAIN-SUFFIX</option><option value="DOMAIN">DOMAIN</option><option value="DOMAIN-KEYWORD">DOMAIN-KEYWORD</option><option value="IP-CIDR">IP-CIDR</option><option value="IP-CIDR6">IP-CIDR6</option><option value="GEOIP">GEOIP</option></select>
+<input id="cr-val" style="flex:2;min-width:160px" placeholder="example.com / 1.2.3.0/24 / ir" />
+<select id="cr-out" style="flex:1;min-width:110px"><option value="DIRECT">DIRECT</option><option value="REJECT">REJECT</option><option value="PROXY">PROXY</option></select>
+<button class="b" id="cr-add" type="button" data-i="rules_add" style="flex:0 0 auto;width:auto;padding:11px 18px">Add rule</button></div>
+<div class="fg"><textarea id="f-customrules" spellcheck="false" style="min-height:120px" placeholder="DOMAIN-SUFFIX,digikala.com,DIRECT&#10;DOMAIN-KEYWORD,doubleclick,REJECT"></textarea></div></div>
+<div class="card" data-tour="help_preset"><h3 data-i="preset_h">Preset rules</h3>
+<div class="sec-s" style="margin:0 0 12px" data-i="preset_s">Quick country bypass and category blocks, applied to Clash configs (in addition to the toggles above).</div>
+<div class="sw"><div class="lbl"><span data-i="bp_cn">Bypass China</span><small data-i="bp_cn_h">route China sites/IPs direct</small></div><div class="tg" id="t-bp-cn"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="bp_ru">Bypass Russia</span><small data-i="bp_ru_h">route Russia sites/IPs direct</small></div><div class="tg" id="t-bp-ru"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="bk_quic">Block QUIC</span><small data-i="bk_quic_h">force TCP (fixes some stalls / leaks)</small></div><div class="tg" id="t-bk-quic"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="bk_malware">Block malware</span><small data-i="bk_geo_h">needs client geodata</small></div><div class="tg" id="t-bk-malware"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="bk_phishing">Block phishing</span><small data-i="bk_geo_h">needs client geodata</small></div><div class="tg" id="t-bk-phishing"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="bk_crypto">Block cryptominers</span><small data-i="bk_geo_h">needs client geodata</small></div><div class="tg" id="t-bk-cryptominers"><div class="d"></div></div></div></div>
+<div class="card" data-tour="help_dns"><h3 data-i="net_dns">Secure DNS</h3>
+<div class="sec-s" style="margin:0 0 12px" data-i="net_dns_h">Encrypted DNS hides which sites you look up and helps reach sanctioned services.</div>
+<div class="sw"><div class="lbl"><span data-i="net_doh">DNS-over-HTTPS (DoH)</span><small data-i="net_doh_h">encrypt DNS lookups</small></div><div class="tg" id="t-doh"><div class="d"></div></div></div>
+<div class="fg"><label data-i="net_dohprov">DoH provider</label><select id="n-dohprov"><option value="cloudflare">Cloudflare (1.1.1.1)</option><option value="google">Google (8.8.8.8)</option><option value="quad9">Quad9 (9.9.9.9)</option><option value="adguard">AdGuard</option></select></div>
+<div class="sw"><div class="lbl"><span data-i="net_antisanc">Anti-sanction DNS</span><small data-i="net_antisanc_h">reach Google, GitHub, npm and other geo-blocked services</small></div><div class="tg" id="t-antisanc"><div class="d"></div></div></div>
+<div class="row"><div class="fg"><label data-i="net_antiprov">Anti-sanction provider</label><select id="n-antiprov"><option value="shekan">Shecan (Iran)</option><option value="cloudflare">Cloudflare</option><option value="google">Google</option><option value="quad9">Quad9</option><option value="adguard">AdGuard</option><option value="alidns">AliDNS</option><option value="custom">Custom</option></select></div>
+<div class="fg"><label data-i="net_anticustom">Custom DNS (if "Custom")</label><input id="n-anticustom" placeholder="178.22.122.100" /></div></div>
+<div class="sw"><div class="lbl"><span data-i="net_localdns">Local DNS</span><small data-i="net_localdns_h">resolve some names on the device</small></div><div class="tg" id="t-localdns"><div class="d"></div></div></div>
+<div class="row"><div class="fg"><label data-i="net_localip">Local DNS IP</label><input id="n-localip" placeholder="8.8.8.8" /></div>
+<div class="fg"><label data-i="net_localport">Local DNS port</label><input id="n-localport" placeholder="53" /></div></div>
+<div class="sw"><div class="lbl"><span data-i="net_fakedns">Fake DNS</span><small data-i="net_fakedns_h">faster connections, lower latency</small></div><div class="tg" id="t-fakedns"><div class="d"></div></div></div>
+<div class="fg"><label data-i="net_fakeip">Fake DNS range</label><input id="n-fakeip" placeholder="198.18.0.0/15" /></div>
+<div class="fg"><label data-i="net_dohurl">Your private DoH endpoint (use in any browser/app)</label><div class="row" style="gap:8px"><input id="n-dohurl" readonly style="flex:1" /><button class="b g" id="copy-doh" data-i="copy" style="flex:0 0 auto;width:auto;padding:11px 20px">Copy</button></div></div></div>
+
+<div class="card" data-tour="help_netadv"><h3 data-i="net_adv">Advanced</h3>
+<div class="sw"><div class="lbl"><span data-i="net_ipv6">IPv6</span><small data-i="net_ipv6_h">allow IPv6 connections</small></div><div class="tg" id="t-ipv6"><div class="d"></div></div></div>
+<div class="sw"><div class="lbl"><span data-i="net_lan">Allow LAN</span><small data-i="net_lan_h">let other devices on your network use this</small></div><div class="tg" id="t-lan"><div class="d"></div></div></div>
+<div class="fg"><label data-i="net_log">Log level</label><select id="n-loglevel"><option value="error">error</option><option value="warn">warn</option><option value="info">info</option><option value="debug">debug</option></select></div></div>
+
+<button class="b save" id="save-net" data-i="save_all">Save all settings on this page</button>
+</section>
+
+<section class="page" id="p-notif">
+<div class="sec-h" data-i="nav_notif">Notifications</div><div class="sec-s" data-i="notif_s">Worker usage and Telegram alerts.</div>
+
+<div class="card" data-tour="help_workerreq"><h3 data-i="notif_usage">Worker requests</h3>
+<div class="sec-s" style="margin:0 0 12px" data-i="notif_usage_h">Cloudflare's free plan allows 100,000 worker requests per day. Add credentials below to track it here.</div>
+<div class="kv" style="margin-bottom:12px"><div class="k" data-i="notif_used">Used today</div><div class="v"><span id="u-total">-</span> <span style="color:var(--mu);font-size:13px">/ <span id="u-max">100000</span></span></div>
+<div style="height:8px;background:var(--card2);border:1px solid var(--bd);border-radius:999px;margin-top:10px;overflow:hidden"><div id="u-bar" style="height:100%;width:0;background:var(--grad)"></div></div></div>
+<div class="fg"><label data-i="notif_cf_id">Account ID</label><input id="cf-accid" placeholder="cloudflare account id" /></div>
+<div class="fg"><label data-i="notif_cf_tok">API Token (Account Analytics: Read)</label><input id="cf-token" type="password" placeholder="api token" /></div>
+<button class="b" id="save-cf" data-i="save">Save</button></div>
+<div class="card" data-tour="help_tg"><h3 data-i="notif_tg">Telegram alerts</h3>
+<div class="sec-s" style="margin:0 0 12px" data-i="notif_tg_h">Get a message on each subscription fetch, config change, and login.</div>
+<div class="sw"><div class="lbl"><span data-i="notif_tg_en">Enable Telegram alerts</span></div><div class="tg" id="t-tg"><div class="d"></div></div></div>
+<div class="fg"><label data-i="notif_tg_bot">Bot token</label><input id="tg-bot" type="password" placeholder="123456:ABC-..." /></div>
+<div class="fg"><label data-i="notif_tg_chat">Chat IDs</label><textarea id="tg-chat" spellcheck="false" style="min-height:64px" placeholder="123456789&#10;-1001234567890"></textarea><p class="hint" data-i="notif_tg_chat_h">One or more — comma or new-line separated. Numeric user IDs and/or channel IDs (the bot must be admin of any channel).</p></div>
+<button class="b" id="save-tg" data-i="save">Save</button></div>
+</section>
+
+<section class="page" id="p-users">
+<div class="sec-h" data-i="nav_users">Users</div><div class="sec-s" data-i="users_s">Give each person their own link with a data quota and expiry. Disabling or expiring a user cuts off their connections.</div>
+<div class="card" data-tour="help_users"><h3 data-i="users_h2">Multi-user</h3>
+<div class="sw"><div class="lbl"><span data-i="users_en">Enable multi-user</span><small data-i="users_en_h">off = single shared config (default)</small></div><div class="tg" id="t-multiuser"><div class="d"></div></div></div>
+<p class="hint" data-i="users_note">Experimental — verify on a device. Quota is approximate (counted with a short delay) and works on WebSocket transport. Disable or expire a user to cut off their connections.</p>
+<p class="hint" data-i="users_mu_hint">Per-user links only work while multi-user is ON — saving while users exist turns it on automatically. Each user gets their own sub link (Copy link); quota is in GB (0 = unlimited) and the date is when the link expires.</p>
+<div class="hint" id="users-cols" style="margin:12px 0 -2px;display:none;gap:8px;flex-wrap:wrap;font-weight:600"><span style="flex:1;min-width:110px" data-i="users_col_name">Name</span><span style="width:80px" data-i="users_col_quota">Quota (GB)</span><span style="width:140px" data-i="users_col_expiry">Expiry date</span><span data-i="users_col_on">On</span></div>
+<div id="users-list" style="margin-top:12px"></div>
+<div class="row" style="gap:8px;margin-top:10px;align-items:center"><button class="b g" id="users-add" data-i="users_add" style="width:auto;padding:10px 18px">+ Add user</button><button class="b" id="users-save" data-i="save" style="width:auto;padding:10px 18px">Save</button><span id="users-savestat" class="hint" style="flex:1"></span></div></div>
+</section>
+<section class="page" id="p-logs">
+<div class="sec-h" data-i="nav_logs">Logs</div><div class="sec-s" data-i="logs_s">Recent activity and errors on your proxy.</div>
+
+<div class="card" data-tour="help_logs"><h3 style="display:flex;justify-content:space-between;align-items:center"><span data-i="logs_recent">Recent activity</span><button class="b g" id="logs-refresh" data-i="refresh" style="width:auto;padding:6px 14px;font-size:12px">Refresh</button></h3>
+<div id="logs-list" style="overflow-x:auto"></div></div>
+</section>
+
+
+<section class="page" id="p-guide">
+<div class="sec-h" data-i="nav_guide">Guide</div><div class="sec-s" data-i="guide_s">How to use Nova Proxy, step by step.</div>
+<div class="card" style="border-color:color-mix(in srgb,var(--ac) 40%,transparent)"><h3 data-i="qs_h">Quick start</h3>
+<div class="hc" style="padding:0;font-size:13px;line-height:1.95">
+<div class="gstep"><span class="n">1</span><span data-i="qs1">Open the panel at <b>/login</b> (e.g. <code>cdn.irnova.uk/login</code>) and sign in with your admin password — or open the Nova app icon you added to your home screen.</span></div>
+<div class="gstep"><span class="n">2</span><span data-i="qs2">On the <b>Dashboard</b>, tap <b>🇮🇷 Iran mode</b> once to enable the best settings, then copy your <b>subscription link</b> (or scan the QR).</span></div>
+<div class="gstep"><span class="n">3</span><span data-i="qs3">Tap your app button (<b>Hiddify / Karing / v2rayNG / sing-box</b>) to import in one tap, connect, and you're online.</span></div>
+<div class="gstep"><span class="n">4</span><span data-i="qs4">If a network blocks you, try another protocol/port in the app's list, or switch the <b>Fragment</b> preset in Settings.</span></div>
+</div></div>
+<div id="guide-body"></div>
+</section>
+</main>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="qrmodal"><div class="modal-c"><h4 id="qrm-t">QR</h4><div class="qrbox" id="qrm-box"></div><div class="ml" id="qrm-l"></div><button class="b g" id="qrm-x" style="width:100%" data-i="close">Close</button></div></div>
+<script src="/qrcode.min.js"></script>
+<script src="/nova-admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  // Nova Installer — deploy this ONCE (you, the maintainer). It needs no KV and no secrets.
+  //   npx wrangler deploy            (inside the installer/ folder)
+  // Then share its URL (e.g. nova-installer.<you>.workers.dev, or a custom domain like
+  // install.novaproxy.online) with users who don't have GitHub.
+  "name": "nova-installer",
+  "main": "worker.js",
+  "compatibility_date": "2024-11-01",
+  "workers_dev": true
+  // Optional: point the installer at a different single-file source (e.g. your own repo):
+  // "vars": { "SOURCE_URL": "https://raw.githubusercontent.com/<you>/<repo>/main/dist/worker.single.js" }
+}
